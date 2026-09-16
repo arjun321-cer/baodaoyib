@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<title>26届绘画一班 · 报到登记</title>
+<style>
+  :root{
+    --green:#16a34a;
+    --green-bg:#dcfce7;
+    --red:#dc2626;
+    --red-bg:#fee2e2;
+    --gray:#eef0f3;
+    --gray-text:#9ca3af;
+    --bg:#f4f5f7;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --text:#111827;
+    --muted:#6b7280;
+    --primary:#2563eb;
+    --primary-bg:#eff6ff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--text);font-size:14px;line-height:1.45;
+    -webkit-user-select:none;user-select:none;
+  }
+  #app{max-width:780px;margin:0 auto;padding:12px 12px 32px;}
+  header{
+    background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;border-radius:16px;
+    padding:16px;margin-bottom:12px;box-shadow:0 8px 20px rgba(37,99,235,.18);
+  }
+  .title{font-size:20px;font-weight:700;}
+  .subtitle{font-size:12px;opacity:.85;margin-top:4px;}
+  .header-actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;border:none;cursor:pointer;border-radius:10px;padding:9px 12px;
+    font-size:13px;background:#fff;color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.06);
+  }
+  button:active{transform:scale(.97);opacity:.9;}
+  .ghost{background:rgba(255,255,255,.16);color:#fff;box-shadow:none;}
+  .hidden{display:none !important;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .datebar{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:10px;}
+  .datebar button{background:var(--gray);box-shadow:none;padding:8px 10px;font-size:16px;min-width:36px;}
+  .datebar button.primary{background:var(--primary);color:#fff;}
+  .datebar input{
+    flex:1;font-size:15px;font-weight:600;text-align:center;border:1px solid var(--border);
+    border-radius:10px;padding:8px 6px;background:#fafafa;color:var(--text);min-width:0;
+  }
+  .legend{color:var(--muted);font-size:12px;margin:2px 2px 10px;}
+  .stats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .stat{
+    background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 9px;
+    font-size:12px;color:#374151;
+  }
+  .stat b{color:#111827;}
+  .toolbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .toolbar button{background:var(--card);border:1px solid var(--border);box-shadow:none;font-size:12px;padding:8px 10px;}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px;margin-bottom:12px;}
+  table{border-collapse:separate;border-spacing:3px;width:100%;min-width:420px;}
+  th{font-size:12px;color:var(--muted);font-weight:600;padding:4px 2px;text-align:center;}
+  th.name-col{text-align:left;padding-left:6px;}
+  td{padding:0;}
+  .name-cell{
+    min-width:76px;max-width:110px;height:50px;padding:0 6px;font-size:14px;font-weight:600;
+    text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;
+  }
+  .cell{
+    width:100%;height:50px;min-width:50px;border:none;border-radius:10px;font-size:14px;font-weight:700;
+    background:var(--gray);color:var(--gray-text);box-shadow:none;padding:0;
+    touch-action:manipulation;
+  }
+  .cell.present,.cell.submitted{background:var(--green);color:#fff;}
+  .cell.absent,.cell.not_submitted{background:var(--red);color:#fff;}
+  .cell.readonly{background:#fff;border:1px solid var(--border);color:var(--text);font-weight:700;cursor:default;}
+  .cell.readonly.present,.cell.readonly.submitted{background:var(--green);border-color:var(--green);color:#fff;}
+  .cell.readonly.absent,.cell.readonly.not_submitted{background:var(--red);border-color:var(--red);color:#fff;}
+  .cell.readonly.empty{background:var(--gray);border-color:transparent;color:var(--gray-text);}
+  .save-title{font-weight:700;margin-bottom:8px;}
+  .save-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .save-buttons button{background:var(--primary);color:#fff;font-weight:700;padding:12px;font-size:14px;}
+  .save-buttons button.full{background:#0f172a;}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px;}
+  .section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .section-title h2{margin:0;font-size:16px;}
+  .back-btn{background:var(--gray);box-shadow:none;}
+  .record{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;}
+  .record-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+  .record-top .name{font-size:15px;font-weight:700;}
+  .record-top .time{font-size:11px;color:var(--muted);white-space:nowrap;}
+  .record-summary{color:#374151;font-size:12px;margin:8px 0;line-height:1.6;}
+  .record-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .record-actions button{font-size:12px;background:var(--primary-bg);color:var(--primary);box-shadow:none;padding:7px 9px;}
+  .record-actions button.danger{background:var(--red-bg);color:var(--red);}
+  .record-actions button.view{background:var(--gray);color:var(--text);}
+  .detail-caption{margin:8px 2px;color:var(--muted);font-size:12px;}
+  .share-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+  .share-box button{background:var(--primary);color:#fff;font-weight:700;padding:12px;}
+  .share-box button.secondary{background:var(--green);}
+  textarea{
+    width:100%;min-height:360px;border:1px solid var(--border);border-radius:12px;padding:10px;
+    font-size:15px;line-height:1.8;font-family:inherit;resize:vertical;background:#fff;color:var(--text);
+  }
+  .roster-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .roster-actions button{background:var(--primary);color:#fff;font-weight:700;}
+  .roster-actions button.ghost2{background:var(--gray);color:var(--text);}
+  #toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:rgba(17,24,39,.92);
+    color:#fff;padding:10px 16px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;z-index:50;max-width:80vw;text-align:center;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .empty{margin:16px 0;text-align:center;color:var(--muted);}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="title">26届绘画一班 · 报到登记</div>
+    <div class="subtitle">早 / 中 / 晚 报到 · 手机上交情况</div>
+    <div class="header-actions">
+      <button id="btnHistory" class="ghost">历史记录</button>
+      <button id="btnRoster" class="ghost">名单设置</button>
+    </div>
+  </header>
+
+  <main id="mainView">
+    <div class="datebar">
+      <button id="prevDate" aria-label="前一天">‹</button>
+      <input type="date" id="dateInput">
+      <button id="nextDate" aria-label="后一天">›</button>
+      <button id="todayBtn" class="primary">今天</button>
+    </div>
+    <div class="legend">点按一次 = 已到 / 已交 · 长按 = 未到 / 未交 · 再点一次 = 清除记录</div>
+    <div class="stats" id="stats"></div>
+    <div class="toolbar">
+      <button id="allAttendance">早中晚全部已到</button>
+      <button id="allPhone">手机全部已交</button>
+      <button id="clearDay">清空本日</button>
+    </div>
+    <div class="table-wrap">
+      <table id="grid">
+        <thead>
+          <tr>
+            <th class="name-col">姓名</th>
+            <th>早上</th>
+            <th>中午</th>
+            <th>晚上</th>
+            <th>手机</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="save-title">保存本次记录</div>
+      <div class="save-buttons">
+        <button data-session="morning">保存早报</button>
+        <button data-session="noon">保存午报</button>
+        <button data-session="evening">保存晚报</button>
+        <button data-session="all" class="full">保存全天</button>
+      </div>
+      <div class="hint">每次保存都会生成一条独立历史记录，可单独查看、复制文字或生成转发链接。</div>
+    </div>
+  </main>
+
+  <section id="historyView" class="hidden">
+    <div class="section-title">
+      <h2>历史记录</h2>
+      <button id="historyBack" class="back-btn">‹ 返回</button>
+    </div>
+    <div id="historyList"></div>
+  </section>
+
+  <section id="detailView" class="hidden">
+    <div class="section-title">
+      <h2 id="detailTitle">记录详情</h2>
+      <button id="detailBack" class="back-btn">‹ 返回</button>
+    </div>
+    <div id="detailBody"></div>
+  </section>
+
+  <section id="rosterView" class="hidden">
+    <div class="section-title">
+      <h2>名单设置</h2>
+      <button id="rosterBack" class="back-btn">‹ 返回</button>
+    </div>
+    <div class="card">
+      <div class="hint" style="margin:0 0 8px;">每行一个姓名，保存后立即生效。名单会保存在本机浏览器中。</div>
+      <textarea id="rosterText"></textarea>
+      <div class="roster-actions">
+        <button id="rosterSave">保存名单</button>
+        <button id="rosterReset" class="ghost2">恢复默认名单</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  var STORAGE_ROSTER = 'attendance_roster_v1';
+  var STORAGE_DAILY = 'attendance_daily_v1';
+  var STORAGE_RECORDS = 'attendance_records_v1';
+
+  var DEFAULT_NAMES = [
+    '朴勇健',
+    '陈一苇',
+    '楚奥晶',
+    '杜亚茹',
+    '郭嘉怡',
+    '郭爽爽',
+    '姜含笑',
+    '蒋文绚',
+    '贾茹雅',
+    '卢诗蒙',
+    '聂雨彤',
+    '聂雨欣',
+    '亓红力',
+    '史俊涵',
+    '宋晓曦',
+    '王赛',
+    '王诗涵',
+    '王一一',
+    '温淼淼',
+    '许昊萌',
+    '杨朝刚',
+    '姚冰倩',
+    '郑宸汐',
+    '董济辉（401）',
+    '宋冠霖'
+  ];
+
+  var FIELD_LABELS = {morning:'早上', noon:'中午', evening:'晚上', phone:'手机'};
+  var SESSION_LABELS = {morning:'早报', noon:'午报', evening:'晚报', all:'全天'};
+
+  function loadJSON(key, fallback){
+    try{
+      var raw = localStorage.getItem(key);
+      if(!raw) return fallback;
+      return JSON.parse(raw);
+    }catch(e){
+      return fallback;
+    }
+  }
+  function saveJSON(key, value){
+    try{ localStorage.setItem(key, JSON.stringify(value)); }
+    catch(e){ toast('保存失败：浏览器存储不可用'); }
+  }
+  function makeRosterFromNames(names){
+    return names.map(function(name, i){
+      return { id: 's' + String(i+1).padStart(2,'0'), name: name };
+    });
+  }
+  function loadRoster(){
+    var saved = loadJSON(STORAGE_ROSTER, null);
+    if(saved && saved.length){
+      return saved;
+    }
+    return makeRosterFromNames(DEFAULT_NAMES);
+  }
+  function saveRoster(){
+    saveJSON(STORAGE_ROSTER, roster);
+  }
+  function loadDaily(){
+    var d = loadJSON(STORAGE_DAILY, {});
+    if(!d || typeof d !== 'object') d = {};
+    return d;
+  }
+  function saveDaily(){
+    saveJSON(STORAGE_DAILY, daily);
+  }
+  function loadRecords(){
+    var r = loadJSON(STORAGE_RECORDS, []);
+    if(!Array.isArray(r)) r = [];
+    return r;
+  }
+  function saveRecords(){
+    saveJSON(STORAGE_RECORDS, records);
+  }
+
+  var roster = loadRoster();
+  var daily = loadDaily();
+  var records = loadRecords();
+  var currentDate = localDateString(new Date());
+
+  function localDateString(d){
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var day = String(d.getDate()).padStart(2,'0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function emptyCells(){
+    var cells = {};
+    roster.forEach(function(s){
+      cells[s.id] = {morning:'', noon:'', evening:'', phone:''};
+    });
+    return cells;
+  }
+  function getDay(date){
+    if(!daily[date]) daily[date] = {cells: emptyCells()};
+    var d = daily[date];
+    if(!d.cells) d.cells = emptyCells();
+    roster.forEach(function(s){
+      if(!d.cells[s.id]) d.cells[s.id] = {morning:'', noon:'', evening:'', phone:''};
+    });
+    return d;
+  }
+
+  function el(id){ return document.getElementById(id); }
+
+  function toast(msg){
+    var t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  }
+
+  function showView(name){
+    ['mainView','historyView','detailView','rosterView'].forEach(function(id){
+      el(id).classList.toggle('hidden', id !== name);
+    });
+    window.scrollTo(0,0);
+  }
+
+  function fieldValueClass(v){
+    if(v === 'present' || v === 'submitted') return 'present';
+    if(v === 'absent' || v === 'not_submitted') return 'absent';
+    return 'empty';
+  }
+  function cellDisplay(field, v){
+    if(v === 'present' || v === 'submitted') return '✓';
+    if(v === 'absent' || v === 'not_submitted') return '✗';
+    return '—';
+  }
+
+  function renderGrid(){
+    var body = el('gridBody');
+    var day = getDay(currentDate);
+    body.innerHTML = '';
+    roster.forEach(function(s){
+      var tr = document.createElement('tr');
+      var tdName = document.createElement('td');
+      tdName.className = 'name-cell';
+      tdName.textContent = s.name;
+      tdName.title = s.name;
+      tr.appendChild(tdName);
+
+      ['morning','noon','evening','phone'].forEach(function(field){
+        var td = document.createElement('td');
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cell ' + fieldValueClass(day.cells[s.id][field]);
+        btn.textContent = cellDisplay(field, day.cells[s.id][field]);
+        btn.setAttribute('data-id', s.id);
+        btn.setAttribute('data-field', field);
+        btn.setAttribute('aria-label', s.name + ' ' + FIELD_LABELS[field]);
+        bindCell(btn, s.id, field);
+        td.appendChild(btn);
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    updateStats();
+  }
+
+  function bindCell(btn, id, field){
+    var longPress = false;
+    var timer = null;
+    btn.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+    btn.addEventListener('pointerdown', function(e){
+      longPress = false;
+      timer = setTimeout(function(){
+        longPress = true;
+        var failValue = field === 'phone' ? 'not_submitted' : 'absent';
+        setCell(id, field, failValue);
+        if(navigator.vibrate){ try{ navigator.vibrate(40); }catch(e){} }
+      }, 520);
+    });
+    btn.addEventListener('pointerup', function(e){
+      clearTimeout(timer);
+      if(longPress) return;
+      tapCell(id, field);
+    });
+    btn.addEventListener('pointercancel', function(){ clearTimeout(timer); });
+    btn.addEventListener('pointerleave', function(){ clearTimeout(timer); });
+  }
+
+  function tapCell(id, field){
+    var cur = getDay(currentDate).cells[id][field];
+    if(field === 'phone'){
+      setCell(id, field, cur === 'submitted' ? '' : 'submitted');
+    }else{
+      setCell(id, field, cur === 'present' ? '' : 'present');
+    }
+  }
+
+  function setCell(id, field, value){
+    getDay(currentDate).cells[id][field] = value;
+    saveDaily();
+    var btn = document.querySelector('.cell[data-id="'+id+'"][data-field="'+field+'"]');
+    if(btn){
+      btn.className = 'cell ' + fieldValueClass(value);
+      btn.textContent = cellDisplay(field, value);
+    }
+    updateStats();
+  }
+
+  function updateStats(){
+    var day = getDay(currentDate);
+    var counts = {morning:{present:0,absent:0,empty:0}, noon:{present:0,absent:0,empty:0}, evening:{present:0,absent:0,empty:0}, phone:{submitted:0,not_submitted:0,empty:0}};
+    roster.forEach(function(s){
+      ['morning','noon','evening'].forEach(function(f){
+        var v = day.cells[s.id][f];
+        if(v === 'present') counts[f].present++;
+        else if(v === 'absent') counts[f].absent++;
+        else counts[f].empty++;
+      });
+      var p = day.cells[s.id].phone;
+      if(p === 'submitted') counts.phone.submitted++;
+      else if(p === 'not_submitted') counts.phone.not_submitted++;
+      else counts.phone.empty++;
+    });
+    var html = '';
+    html += '<div class="stat">早 <b>✓'+counts.morning.present+'</b> <span style="color:#dc2626">✗'+counts.morning.absent+'</span> <span style="color:#9ca3af">—'+counts.morning.empty+'</span></div>';
+    html += '<div class="stat">中 <b>✓'+counts.noon.present+'</b> <span style="color:#dc2626">✗'+counts.noon.absent+'</span> <span style="color:#9ca3af">—'+counts.noon.empty+'</span></div>';
+    html += '<div class="stat">晚 <b>✓'+counts.evening.present+'</b> <span style="color:#dc2626">✗'+counts.evening.absent+'</span> <span style="color:#9ca3af">—'+counts.evening.empty+'</span></div>';
+    html += '<div class="stat">手机 <b>交'+counts.phone.submitted+'</b> <span style="color:#dc2626">未'+counts.phone.not_submitted+'</span> <span style="color:#9ca3af">—'+counts.phone.empty+'</span></div>';
+    el('stats').innerHTML = html;
+  }
+
+  function sessionFields(session){
+    if(session === 'all') return ['morning','noon','evening','phone'];
+    return [session, 'phone'];
+  }
+
+  function uid(){
+    return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+
+  function saveRecord(session){
+    var day = getDay(currentDate);
+    var fields = sessionFields(session);
+    var statuses = {};
+    roster.forEach(function(s){
+      var obj = {};
+      fields.forEach(function(f){
+        var v = day.cells[s.id][f];
+        if(v) obj[f] = v;
+      });
+      statuses[s.id] = obj;
+    });
+    var record = {
+      id: uid(),
+      date: currentDate,
+      session: session,
+      label: SESSION_LABELS[session],
+      createdAt: Date.now(),
+      fields: fields,
+      students: roster.map(function(s){ return {id:s.id, name:s.name}; }),
+      statuses: statuses
+    };
+    records.unshift(record);
+    saveRecords();
+    toast('已保存：' + currentDate + ' ' + record.label);
+  }
+
+  function formatTime(ts){
+    var d = new Date(ts);
+    return localDateString(d) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+
+  function recordCounts(record){
+    var out = {};
+    record.fields.forEach(function(f){
+      if(f === 'phone'){
+        out.phone = {submitted:0, not_submitted:0, empty:0};
+      }else{
+        out[f] = {present:0, absent:0, empty:0};
+      }
+    });
+    record.students.forEach(function(s){
+      var st = record.statuses[s.id] || {};
+      record.fields.forEach(function(f){
+        var v = st[f] || '';
+        if(f === 'phone'){
+          if(v === 'submitted') out.phone.submitted++;
+          else if(v === 'not_submitted') out.phone.not_submitted++;
+          else out.phone.empty++;
+        }else{
+          if(v === 'present') out[f].present++;
+          else if(v === 'absent') out[f].absent++;
+          else out[f].empty++;
+        }
+      });
+    });
+    return out;
+  }
+
+  function namesFor(record, field, value){
+    return record.students.filter(function(s){
+      var st = record.statuses[s.id] || {};
+      return st[field] === value;
+    }).map(function(s){ return s.name; }).join('、') || '无';
+  }
+
+  function recordSummary(record){
+    var c = recordCounts(record);
+    var parts = [];
+    record.fields.forEach(function(f){
+      if(f === 'phone'){
+        parts.push('手机 交'+c.phone.submitted+' 未'+c.phone.not_submitted+' 未记'+c.phone.empty);
+      }else{
+        parts.push(FIELD_LABELS[f]+' 到'+c[f].present+' 缺'+c[f].absent+' 未记'+c[f].empty);
+      }
+    });
+    return parts.join(' · ');
+  }
+
+  function recordText(record){
+    var lines = [];
+    lines.push('【26届绘画一班 · ' + record.date + ' ' + record.label + '】');
+    record.fields.forEach(function(f){
+      if(f === 'phone'){
+        lines.push('手机上交：✅已交 ' + namesFor(record,'phone','submitted'));
+        lines.push('　　　　　❌未交 ' + namesFor(record,'phone','not_submitted'));
+        lines.push('　　　　　⬜未记录 ' + namesFor(record,'phone',''));
+      }else{
+        lines.push(FIELD_LABELS[f] + '：✅已到 ' + namesFor(record,f,'present'));
+        lines.push('　　　　　❌未到 ' + namesFor(record,f,'absent'));
+        lines.push('　　　　　⬜未记录 ' + namesFor(record,f,''));
+      }
+    });
+    lines.push('统计：' + recordSummary(record));
+    lines.push('生成时间：' + formatTime(record.createdAt));
+    return lines.join('\n');
+  }
+
+  function encodeRecord(record){
+    try{
+      var json = JSON.stringify(record);
+      var bytes = new TextEncoder().encode(json);
+      var bin = '';
+      bytes.forEach(function(b){ bin += String.fromCharCode(b); });
+      return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    }catch(e){
+      return encodeURIComponent(JSON.stringify(record));
+    }
+  }
+  function decodeRecord(s){
+    try{
+      var b64 = s.replace(/-/g,'+').replace(/_/g,'/');
+      while(b64.length % 4) b64 += '=';
+      var bin = atob(b64);
+      var bytes = Uint8Array.from(bin, function(ch){ return ch.charCodeAt(0); });
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }catch(e){
+      return JSON.parse(decodeURIComponent(s));
+    }
+  }
+
+  function shareLink(record){
+    return location.href.split('#')[0] + '#record=' + encodeRecord(record);
+  }
+
+  function copyText(text){
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try{ document.execCommand('copy'); toast('已复制'); }
+      catch(e){ toast('复制失败，请手动复制'); }
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ toast('已复制'); }, fallback);
+    }else{
+      fallback();
+    }
+  }
+
+  function renderHistory(){
+    var box = el('historyList');
+    box.innerHTML = '';
+    if(!records.length){
+      box.innerHTML = '<div class="empty">还没有历史记录。回到首页点“保存早报/午报/晚报/全天”即可生成。</div>';
+      return;
+    }
+    records.forEach(function(record){
+      var div = document.createElement('div');
+      div.className = 'record';
+      var top = document.createElement('div');
+      top.className = 'record-top';
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = record.date + ' ' + record.label;
+      var time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = formatTime(record.createdAt);
+      top.appendChild(name);
+      top.appendChild(time);
+      div.appendChild(top);
+      var summary = document.createElement('div');
+      summary.className = 'record-summary';
+      summary.textContent = recordSummary(record);
+      div.appendChild(summary);
+      var actions = document.createElement('div');
+      actions.className = 'record-actions';
+      actions.appendChild(makeAction('查看', 'view', function(){ showDetail(record); }));
+      actions.appendChild(makeAction('复制文字', '', function(){ copyText(recordText(record)); }));
+      actions.appendChild(makeAction('复制链接', '', function(){ copyText(shareLink(record)); }));
+      actions.appendChild(makeAction('删除', 'danger', function(){
+        if(confirm('确定删除这条记录吗？')){
+          records = records.filter(function(r){ return r.id !== record.id; });
+          saveRecords();
+          renderHistory();
+          toast('已删除');
+        }
+      }));
+      div.appendChild(actions);
+      box.appendChild(div);
+    });
+  }
+
+  function makeAction(text, extra, handler){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = text;
+    if(extra) b.className = extra;
+    b.addEventListener('click', handler);
+    return b;
+  }
+
+  function showDetail(record){
+    el('detailTitle').textContent = record.date + ' ' + record.label + ' 记录';
+    var box = el('detailBody');
+    box.innerHTML = '';
+    var caption = document.createElement('div');
+    caption.className = 'detail-caption';
+    caption.textContent = '保存时间：' + formatTime(record.createdAt) + '　' + recordSummary(record);
+    box.appendChild(caption);
+
+    var wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    var table = document.createElement('table');
+    var thead = document.createElement('thead');
+    var trh = document.createElement('tr');
+    var thName = document.createElement('th');
+    thName.className = 'name-col';
+    thName.textContent = '姓名';
+    trh.appendChild(thName);
+    record.fields.forEach(function(f){
+      var th = document.createElement('th');
+      th.textContent = FIELD_LABELS[f];
+      trh.appendChild(th);
+    });
+    thead.appendChild(trh);
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    record.students.forEach(function(s){
+      var tr = document.createElement('tr');
+      var tdName = document.createElement('td');
+      tdName.className = 'name-cell';
+      tdName.textContent = s.name;
+      tr.appendChild(tdName);
+      var st = record.statuses[s.id] || {};
+      record.fields.forEach(function(f){
+        var td = document.createElement('td');
+        var cell = document.createElement('div');
+        var v = st[f] || '';
+        cell.className = 'cell readonly ' + fieldValueClass(v);
+        cell.textContent = cellDisplay(f, v);
+        td.appendChild(cell);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    box.appendChild(wrap);
+
+    var share = document.createElement('div');
+    share.className = 'share-box';
+    var copyTextBtn = document.createElement('button');
+    copyTextBtn.type = 'button';
+    copyTextBtn.textContent = '复制文字';
+    copyTextBtn.addEventListener('click', function(){ copyText(recordText(record)); });
+    var copyLinkBtn = document.createElement('button');
+    copyLinkBtn.type = 'button';
+    copyLinkBtn.className = 'secondary';
+    copyLinkBtn.textContent = '复制转发链接';
+    copyLinkBtn.addEventListener('click', function(){ copyText(shareLink(record)); });
+    share.appendChild(copyTextBtn);
+    share.appendChild(copyLinkBtn);
+    box.appendChild(share);
+    showView('detailView');
+  }
+
+  function changeDate(d){
+    currentDate = localDateString(d);
+    el('dateInput').value = currentDate;
+    renderGrid();
+  }
+
+  function addDays(date, n){
+    var d = new Date(date.getFullYear(), date.getMonth(), date.getDate() + n);
+    return d;
+  }
+
+  function parseDate(str){
+    var parts = str.split('-');
+    return new Date(Number(parts[0]), Number(parts[1])-1, Number(parts[2]));
+  }
+
+  function showRosterEditor(){
+    el('rosterText').value = roster.map(function(s){ return s.name; }).join('\n');
+    showView('rosterView');
+  }
+
+  function applyRosterNames(names){
+    if(!names.length){
+      toast('名单不能为空');
+      return false;
+    }
+    roster = makeRosterFromNames(names);
+    saveRoster();
+    // 补齐当天记录结构
+    getDay(currentDate);
+    renderGrid();
+    renderHistory();
+    toast('名单已保存');
+    return true;
+  }
+
+  function handleHash(){
+    var m = location.hash.match(/^#record=(.+)$/);
+    if(m){
+      try{
+        var record = decodeRecord(m[1]);
+        if(record && record.students && record.fields){
+          showDetail(record);
+          return true;
+        }
+      }catch(e){}
+    }
+    return false;
+  }
+
+  function init(){
+    el('dateInput').value = currentDate;
+    el('prevDate').addEventListener('click', function(){ changeDate(addDays(parseDate(currentDate), -1)); });
+    el('nextDate').addEventListener('click', function(){ changeDate(addDays(parseDate(currentDate), 1)); });
+    el('todayBtn').addEventListener('click', function(){ changeDate(new Date()); });
+    el('dateInput').addEventListener('change', function(e){
+      if(e.target.value) changeDate(parseDate(e.target.value));
+    });
+    el('allAttendance').addEventListener('click', function(){
+      if(!confirm('把今天所有人早/中/晚都标记为已到？')) return;
+      roster.forEach(function(s){
+        var c = getDay(currentDate).cells[s.id];
+        c.morning = 'present'; c.noon = 'present'; c.evening = 'present';
+      });
+      saveDaily(); renderGrid(); toast('已全部标记为已到');
+    });
+    el('allPhone').addEventListener('click', function(){
+      if(!confirm('把今天所有人手机标记为已上交？')) return;
+      roster.forEach(function(s){ getDay(currentDate).cells[s.id].phone = 'submitted'; });
+      saveDaily(); renderGrid(); toast('已全部标记为已交');
+    });
+    el('clearDay').addEventListener('click', function(){
+      if(!confirm('确定清空本日所有记录？')) return;
+      daily[currentDate] = {cells: emptyCells()};
+      saveDaily(); renderGrid(); toast('已清空本日');
+    });
+    document.querySelectorAll('.save-buttons button[data-session]').forEach(function(btn){
+      btn.addEventListener('click', function(){ saveRecord(btn.getAttribute('data-session')); });
+    });
+    el('btnHistory').addEventListener('click', function(){ renderHistory(); showView('historyView'); });
+    el('historyBack').addEventListener('click', function(){ showView('mainView'); });
+    el('detailBack').addEventListener('click', function(){
+      if(records.some(function(r){ return r.id === currentDetailId; })) { showView('historyView'); renderHistory(); }
+      else showView('mainView');
+    });
+    el('btnRoster').addEventListener('click', showRosterEditor);
+    el('rosterBack').addEventListener('click', function(){ showView('mainView'); });
+    el('rosterSave').addEventListener('click', function(){
+      var lines = el('rosterText').value.split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+      if(applyRosterNames(lines)) showView('mainView');
+    });
+    el('rosterReset').addEventListener('click', function(){
+      if(confirm('恢复默认名单？当前名单会被替换。')){
+        el('rosterText').value = DEFAULT_NAMES.join('\n');
+        applyRosterNames(DEFAULT_NAMES.slice());
+        showView('mainView');
+      }
+    });
+
+    renderGrid();
+    if(!handleHash()) showView('mainView');
+  }
+
+  var currentDetailId = null;
+  var originalShowDetail = showDetail;
+  showDetail = function(record){
+    currentDetailId = record.id;
+    originalShowDetail(record);
+  };
+
+  init();
+})();
+</script>
+</body>
+</html>
